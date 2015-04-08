@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="CeradHttpApp" ng-strict-di>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>HTTP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/">
+    <link rel="stylesheet" type="text/css" href="css/vendor.css">
+    <link rel="stylesheet" type="text/css" href="app.css">
+  </head>
+  <body>
+    <div class="container border-dark-dashed">
+      <div class="row border-dark">
+        <div class="col-sm-12">
+          <h1>HTTP Testing Page</h1>
+        </div>
+      </div>
+      
+      <div class="row border-dark">
+        <div class="col-sm-12">
+          <form class="form-inline" role="form" method="POST">
+            <div class="form-group">
+              <label  for="user">User Name:</label>
+              <input 
+                type="text" id="user" name="user" value="<?php echo $user; ?>"
+                class="form-control form-control-inline">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
+        </div>
+      </div>
+      <div class="row border-dark">
+        <div class="col-sm-12">
+          <div>User: <?php echo $user; ?></div>
+        </div>
+      </div>
+      <div ng-controller="CeradJsonFormController as formController">
+      <div class="row border-dark">
+        <div class="col-sm-12">
+          <form class="form-inline" role="form" ng-submit="formController.onSubmit()">
+            <div class="form-group">
+              <label  for="user2">User Name:</label>
+              <input 
+                type="text" id="user2" name="user" ng-model="formController.user"
+                class="form-control form-control-inline">
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
+        </div>
+      </div>
+      <div class="row border-dark">
+        <div class="col-sm-12">
+          <div>User2: {{ formController.user }}</div>
+        </div>
+      </div></div>
+      <div class="row border-dark">
+        <div class="col-sm-6 border-dark">
+          <table class="table">
+            <tr><td>Base Path   </td><td><?php echo $request->getBasePath();   ?></td></tr>
+            <tr><td>Base Url    </td><td><?php echo $request->getBaseUrl();    ?></td></tr>
+            <tr><td>Path Info   </td><td><?php echo $request->getPathInfo();   ?></td></tr>
+            <tr><td>Request Uri </td><td><?php echo $request->getRequestUri(); ?></td></tr>
+            <tr><td>Uri         </td><td><?php echo $request->getUri();        ?></td></tr>
+            <tr><td>Uri For Path</td><td>URI with path arg and no query string   </td></tr>
+          </table>
+        </div>
+        <div class="col-sm-6">
+          <table class="table">
+            <tr><td>Script File</td><td><?php echo $request->server->get('SCRIPT_FILENAME');?></td></tr>
+            <tr><td>Script Name</td><td><?php echo $request->server->get('SCRIPT_NAME');    ?></td></tr>
+            <tr><td>PHP_SELF   </td><td><?php echo $request->server->get('PHP_SELF');       ?></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <script src="js/vendor.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
+  

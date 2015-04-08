@@ -14,6 +14,9 @@ class Request
   
   protected $content;
   
+  protected $isJson = false;
+  protected $isForm = false;
+  
   public function __construct($serverData, $headers = [], $content = null)
   {
     $this->attributes = new AttributeBag();
@@ -62,20 +65,32 @@ class Request
     
     // Do some parsing or leave till later?
     $contentType = $this->headers->get('Content-Type');
-    switch($contentType)
+    switch(strtolower($contentType))
     {
+      // Very fragile
       case 'application/json':
+      case 'application/json;charset=utf-8':
+        $this->isJson = true;
         $this->content = json_decode($this->content,true); 
         break;
       case 'application/x-www-form-urlencoded':
+        $this->isForm = true;
         $formData = [];
         parse_str($this->content,$formData);
         $this->content = $formData;
         break;
+      default:
+        // TODO: Need something here!
     }
   }
-  public function getMethod()          { return $this->method;   }
   public function getProtocolVersion() { return $this->protocol; }
+  
+  public function getMethod() { return $this->method;   }
+  
+  public function isPost()    { return $this->method == 'POST' ? true : false; }
+  
+  public function isForm() { return $this->isForm; }
+  public function isJson() { return $this->isJson; }
   
   public function getPath() { return $this->uri->get('path'); }
   

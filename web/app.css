@@ -1,0 +1,39 @@
+/*
+ * Some bootstrap styles
+ */
+
+/* Border stuff for debugging */
+.border-dark 
+{
+  border-style: solid;
+  border-color: #666;
+  border-width: 1px;
+}
+.border-dark-dashed 
+{
+  border-style: dashed;
+  border-color: #696;
+  border-width: 5px;
+}
+/* Prevents input controls from taking the full width of the screen
+ * Pure majic for now
+ */
+.form-control-inline 
+{
+  min-width:    0;
+  width:     auto;
+  display: inline;
+}
+body
+{
+  background-color: palegoldenrod;
+}
+/* =======================================
+ * From what I can tell, this is the proper way to customize
+ * bootstrap classes
+ */
+.container
+{
+  background-color: paleturquoise;
+}
+
