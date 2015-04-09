@@ -53,6 +53,24 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals('project=ng2016&title=NG 2016',$bag->get('query'));
 
   }
+  public function testUriWeb()
+  {
+    $uris =
+    [
+      ''              => '', // Per PSR7, this is okay because a blank string is a value
+      '/'             => '/', 
+      '/web'          => '/web',
+      '/web/'         => '/web/',
+      '/web/info.php' => '/web/info.php',
+    ];
+    foreach($uris as $str => $path)
+    {
+    //print_r(parse_url(null)); die();
+      $bag = new UriBag($str);
+      $this->assertEquals($path,$bag->getPath());
+    }
+    
+  }
   public function testUriBagServer()
   {
     $server = 
@@ -63,7 +81,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     $uriParts = $serverBag->getUriParts();
     $uriBag = new UriBag($uriParts);
     
-    $this->assertEquals('/',        $uriBag->get('path'));
+    $this->assertEquals('',         $uriBag->getPath());
     $this->assertEquals('localhost',$uriBag->get('host'));
     $this->assertEquals('http',     $uriBag->get('scheme'));
     
@@ -79,7 +97,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     
     $this->assertEquals('POST',         $request->getMethod());
     $this->assertEquals('HTTP/1.1',     $request->getProtocolVersion());
-    $this->assertEquals('/referees',    $request->getPath());
+    $this->assertEquals('/referees',    $request->getUri()->getPath());
     $this->assertEquals('api.zayso.org',$request->getHost());
     $this->assertEquals('api.zayso.org',$request->getHeader('Host'));    
   }

@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>HTTP</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="/">
+    <base href="<?php echo $baseHref; ?>">
     <link rel="stylesheet" type="text/css" href="css/vendor.css">
     <link rel="stylesheet" type="text/css" href="app.css">
   </head>
@@ -57,22 +57,32 @@
       <div class="row border-dark">
         <div class="col-sm-6 border-dark">
           <table class="table">
-            <tr><td>Base Path   </td><td><?php echo $request->getBasePath();   ?></td></tr>
-            <tr><td>Base Url    </td><td><?php echo $request->getBaseUrl();    ?></td></tr>
-            <tr><td>Path Info   </td><td><?php echo $request->getPathInfo();   ?></td></tr>
-            <tr><td>Request Uri </td><td><?php echo $request->getRequestUri(); ?></td></tr>
-            <tr><td>Uri         </td><td><?php echo $request->getUri();        ?></td></tr>
+            <tr><td>Base Path   </td><td><?php echo $symfonyRequest->getBasePath();   ?></td></tr>
+            <tr><td>Base Url    </td><td><?php echo $symfonyRequest->getBaseUrl();    ?></td></tr>
+            <tr><td>Path Info   </td><td><?php echo $symfonyRequest->getPathInfo();   ?></td></tr>
+            <tr><td>Request Uri </td><td><?php echo $symfonyRequest->getRequestUri(); ?></td></tr>
+            <tr><td>Uri         </td><td><?php echo $symfonyRequest->getUri();        ?></td></tr>
             <tr><td>Uri For Path</td><td>URI with path arg and no query string   </td></tr>
+            <tr><td>Script File </td><td><?php echo $symfonyRequest->server->get('SCRIPT_FILENAME');?></td></tr>
+            <tr><td>Script Name </td><td><?php echo $symfonyRequest->server->get('SCRIPT_NAME');    ?></td></tr>
+            <tr><td>PHP_SELF    </td><td><?php echo $symfonyRequest->server->get('PHP_SELF');       ?></td></tr>
           </table>
         </div>
         <div class="col-sm-6">
           <table class="table">
-            <tr><td>Script File</td><td><?php echo $request->server->get('SCRIPT_FILENAME');?></td></tr>
-            <tr><td>Script Name</td><td><?php echo $request->server->get('SCRIPT_NAME');    ?></td></tr>
-            <tr><td>PHP_SELF   </td><td><?php echo $request->server->get('PHP_SELF');       ?></td></tr>
-          </table>
+            <tr><td>Cerad Query    </td><td><?php echo $ceradUri->get('query'); ?></td></tr>
+            <tr><td>Cerad Base Href</td><td><?php echo $ceradRequest->getBaseHref(); ?></td></tr>
+            <tr><td>Cerad Path     </td><td><?php echo $ceradUri->get('path');  ?></td></tr>
+            <tr><td>Cerad Route    </td><td><?php echo $ceradRequest->getRoutePath(); ?></td></tr>
+            <tr><td>REQUEST_URI    </td><td><?php echo $ceradServer['REQUEST_URI'];     ?></td></tr>
+            <tr><td>PATH_INFO      </td><td><?php echo $ceradServer['PATH_INFO'];       ?></td></tr>
+            <tr><td>SCRIPT_FILENAME</td><td><?php echo $ceradServer['SCRIPT_FILENAME']; ?></td></tr>
+            <tr><td>SCRIPT_NAME    </td><td><?php echo $ceradServer['SCRIPT_NAME'];     ?></td></tr>
+            <tr><td>PHP_SELF       </td><td><?php echo $ceradServer['PHP_SELF'];        ?></td></tr>
+           </table>
         </div>
       </div>
+        
     </div>
     <script src="js/vendor.js"></script>
     <script src="app.js"></script>

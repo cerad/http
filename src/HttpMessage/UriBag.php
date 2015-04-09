@@ -21,11 +21,22 @@ class UriBag extends ParamBag
     
     if (is_string($url)) $parts = array_replace($items,parse_url($url));
     else                 $parts = array_replace($items,   (array)$url);
-    
+
     $parts['query'] = urldecode($parts['query']);
     
     if (($parts['scheme'] == 'http')  && ($parts['port'] ==  80)) $parts['port'] = null;
     if (($parts['scheme'] == 'https') && ($parts['port'] == 337)) $parts['port'] = null;
+    
+    /* =========================================
+     * The psr-7 spec says always have at least a slash for the request object
+     * Trailing blanks are fine per the rfc
+     * I think the rfc allows empty paths
+     * Sp no special processing for now
+     */
+    /*
+    $path = rtrim($parts['path'],'/');
+    if (!$path) $path = '/';
+    $parts['path'] = $path;*/
     
     $this->items = array_replace($items,$parts);
  }
@@ -37,6 +48,10 @@ class UriBag extends ParamBag
       case 'authority': return $this->getAuthority();
     }
     return parent::get($name,$value);
+  }
+  public function getPath()
+  {
+    return $this->items['path'] === null ? '/' : $this->items['path'];
   }
   protected function getUserInfo() 
   { 

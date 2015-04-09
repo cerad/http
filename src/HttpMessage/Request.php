@@ -26,7 +26,7 @@ class Request
       $this->server  = new ServerBag($serverData);
       $serverHeaders = $this->server->getHeaders();
       $this->headers = new HeaderBag(array_replace($serverHeaders,(array)$headers));
-      $this->uri     = new UriBag($serverData);
+      $this->uri     = new UriBag($this->server->getUriParts());
       
       $this->method   = $this->server->get('REQUEST_METHOD');
       $this->protocol = $this->server->get('SERVER_PROTOCOL');
@@ -63,24 +63,20 @@ class Request
     
     if (!$this->content) $this->content = $content;
     
-    // Do some parsing or leave till later?
-    $contentType = $this->headers->get('Content-Type');
-    switch(strtolower($contentType))
+    // Go ahead and parse here, implement getParserContent later
+    $contentType = strtolower($this->headers->get('Content-Type'));
+    
+    if (strpos($contentType,'application/json') !== false)
     {
-      // Very fragile
-      case 'application/json':
-      case 'application/json;charset=utf-8':
-        $this->isJson = true;
-        $this->content = json_decode($this->content,true); 
-        break;
-      case 'application/x-www-form-urlencoded':
-        $this->isForm = true;
-        $formData = [];
-        parse_str($this->content,$formData);
-        $this->content = $formData;
-        break;
-      default:
-        // TODO: Need something here!
+      $this->isJson  = true;
+      $this->content = json_decode($this->content,true); 
+    }
+    if (strpos($contentType,'application/x-www-form-urlencoded') !== false)
+    {
+       $this->isForm = true;
+       $formData = [];
+       parse_str($this->content,$formData);
+       $this->content = $formData;
     }
   }
   public function getProtocolVersion() { return $this->protocol; }
@@ -92,8 +88,6 @@ class Request
   public function isForm() { return $this->isForm; }
   public function isJson() { return $this->isJson; }
   
-  public function getPath() { return $this->uri->get('path'); }
-  
   public function getHost() 
   { 
     // header->get('Host')
@@ -104,4 +98,37 @@ class Request
     return $this->headers->get($name,$default,$asArray);
   }
   public function getContent() { return $this->content; }
+  
+  public function getUri() { return $this->uri; }
+  
+  public function getServerParams() { return $this->server->get(); }
+  
+  /* ====================================================
+   * Everything breaks as soon as I go to /web/index.php, can't find css etc
+   * Need:  <base href="http://localhost:8080/web/">
+   * Works: <base href="/web/">
+   * 
+   * SymfonyRequest::getBasePath . '/' represents the base href
+   * It is not directly available from the $_SERVER
+   */
+  public function getBaseHref()
+  {
+    // index.php, think we always have these two
+    $scriptFileName = basename($this->server->get('SCRIPT_FILENAME'));
+    $scriptName     =          $this->server->get('SCRIPT_NAME');
+    
+    $pos = strpos($scriptName,$scriptFileName);
+    
+    // /web/
+    return $pos === false ? $scriptName : substr($scriptName,0,$pos);
+  }
+  /* ===========================================
+   * PATH_INFO is almost there but always want a /
+   * Init it in the constructor
+   */
+  public function getRoutePath() 
+  { 
+    return $this->server->get('PATH_INFO');
+  }
+
 }

@@ -17,7 +17,7 @@ class ServerBag extends ParamBag
       'HTTPS'                => 'off', // On, need to mess with port stuff and scheme
     //'FRAGMENT'             => '',    // Never sent to server so NA
       
-      'PATH_INFO'            => '/',
+      'PATH_INFO'            => '/', // Not always set, want / for routing
       'QUERY_STRING'         => '', // TODO
       
       'REQUEST_URI'          => '', // TODO
@@ -44,10 +44,15 @@ class ServerBag extends ParamBag
   {
     $items = $this->items;
     
+    // PATH_INFO is not path
+    $pathParts = explode('?',$items['REQUEST_URI']);
+    
+    $path = $pathParts[0];
+    
     $parts = 
     [
       'host' => $items['HTTP_HOST'],
-      'path' => $items['PATH_INFO'],
+      'path' => $path,
       'port' => $items['SERVER_PORT'],
       
       'query'  => $items['QUERY_STRING'],
