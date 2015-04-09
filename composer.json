@@ -1,5 +1,5 @@
 {
-  "name": "cerad-http",
+  "name": "cerad/http",
   "license": "MIT",
   "type": "project",
   "description": "HTTP Components",
