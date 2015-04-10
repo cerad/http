@@ -20,6 +20,14 @@ abstract class ParamBag
   {
     if (!$name) return;
     
+    if (is_array($name))
+    {
+      foreach($name as $key => $value)
+      {
+        $this->set($key,$value);
+      }
+      return;
+    }
     if ($value === null)
     {
       if (isset($this->items[$name])) unset($this->items[$name]);

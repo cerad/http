@@ -55,7 +55,8 @@ class Request
       
       $this->headers = new HeaderBag($headers);
       
-      $this->server  = new ServerBag();
+      // Might need more server initialization?
+      $this->server  = new ServerBag(['PATH_INFO' => $this->uri->getPath()]);
     }
     $this->attributes = new AttributeBag();
     
@@ -102,6 +103,12 @@ class Request
   public function getUri() { return $this->uri; }
   
   public function getServerParams() { return $this->server->get(); }
+  public function getQueryParams() 
+  { 
+    $params = [];
+    parse_str($this->uri->get('query'),$params);
+    return $params;
+  }
   
   /* ====================================================
    * Everything breaks as soon as I go to /web/index.php, can't find css etc
