@@ -132,9 +132,17 @@ class Request
   /* ===========================================
    * PATH_INFO is almost there but always want a /
    * Init it in the constructor
+   * 
+   * TODO: Probably does not work correctly from test script
+   * And maybe not from a sub directory
    */
   public function getRoutePath() 
   { 
+    return $this->getUri()->get('path');
+    
+    die('Path ' . $this->getUri()->get('path'));
+    $pathInfo   = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : 'NONE';
+    die('PathInfo ' . $pathInfo . ' ' . $_SERVER['REQUEST_URI']);
     return $this->server->get('PATH_INFO');
   }
 
