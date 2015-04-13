@@ -11,6 +11,7 @@
     <testsuite name="HttpMessage Test Suite">
       <directory>src/HttpMessage/ServerRequestTest.php</directory>
       <directory>src/HttpMessage/MessageTest.php</directory>
+      <directory>src/HttpMessagePsr7/MessageTest.php</directory>
     </testsuite>
   </testsuites>
 </phpunit>
