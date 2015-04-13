@@ -3,14 +3,7 @@
   "license": "MIT",
   "type": "project",
   "description": "HTTP Components",
-  "autoload": 
-  {
-    "psr-4": 
-    { 
-      "Cerad\\Module\\":    "src/" ,
-      "Cerad\\Component\\": "src/" 
-    }
-  },
+  "autoload": { "psr-4": { "Cerad\\Component\\": "src/" } },
   "require": 
   {
     "php": ">=5.4.19",
