@@ -12,23 +12,23 @@ class ServerBag extends ParamBag
     [
       'SERVER_NAME'          => 'localhost',
       'SERVER_PORT'          => 80,
-      'SERVER_PROTOCOL'      => 'HTTP/1.1',
+      'SERVER_PROTOCOL'      => 'HTTP/1.1', // USED
       
       'HTTPS'                => 'off', // On, need to mess with port stuff and scheme
     //'FRAGMENT'             => '',    // Never sent to server so NA
       
-      'PATH_INFO'            => '/', // Not always set, want / for routing
-      'QUERY_STRING'         => '', // TODO
+      'PATH_INFO'            => null, // Not used
+      'QUERY_STRING'         => null, // Not used
       
-      'REQUEST_URI'          => '', // TODO
-      'REQUEST_TIME'         => time(),
-      'REQUEST_METHOD'       => 'GET',
+      'REQUEST_URI'          => null,   // USED
+      'REQUEST_TIME'         => time(), // Not Used CURRENTLY
+      'REQUEST_METHOD'       => 'GET',  // USED
       
       'REMOTE_ADDR'          => '127.0.0.1',
       
-      'PHP_SELF'             => '', // These three all interact when generating url's
-      'SCRIPT_NAME'          => '',
-      'SCRIPT_FILENAME'      => '',
+      'PHP_SELF'             => '', // Not used
+      'SCRIPT_NAME'          => '', // USED
+      'SCRIPT_FILENAME'      => '', // Not used
       
       // Headers
       'CONTENT_TYPE'         => 'text/plain', // 'application/x-www-form-urlencoded'
@@ -44,19 +44,15 @@ class ServerBag extends ParamBag
   {
     $items = $this->items;
     
-    // PATH_INFO is not path
-    $pathParts = explode('?',$items['REQUEST_URI']);
-    
-    $path = $pathParts[0];
+    // Seems to survive rewrites okay
+    $requestUriParts = explode('?',$items['REQUEST_URI']);
     
     $parts = 
     [
-      'host' => $items['HTTP_HOST'],
-      'path' => $path,
-      'port' => $items['SERVER_PORT'],
-      
-      'query'  => $items['QUERY_STRING'],
-      
+      'path'   => $requestUriParts[0],
+      'host'   => $items['HTTP_HOST'],
+      'port'   => $items['SERVER_PORT'],
+      'query'  => isset($requestUriParts[1]) ? $requestUriParts[1] : null,
       'scheme' => $items['HTTPS'] = 'off' ? 'http' : 'https',
       
       // skip user and pass until we need them for something

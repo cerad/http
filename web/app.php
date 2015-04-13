@@ -23,6 +23,8 @@ $user = 'Art H';
 
 $baseHref = $ceradRequest->getBaseHref();
 
+$_serverPathInfo = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : 'UNDEFINED';
+
 if ($ceradRequest->isPost())
 {
   $content = $ceradRequest->getContent();

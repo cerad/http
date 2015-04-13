@@ -82,7 +82,17 @@
            </table>
         </div>
       </div>
-        
+      <div class="row border-dark">
+        <div class="col-sm-6 border-dark">
+          <table class="table">
+            <tr><td>SCRIPT_FILENAME</td><td><?php echo $_SERVER['SCRIPT_FILENAME'];?></td></tr>
+            <tr><td>SCRIPT_NAME    </td><td><?php echo $_SERVER['SCRIPT_NAME'];    ?></td></tr>
+            <tr><td>PHP_SELF       </td><td><?php echo $_SERVER['PHP_SELF'];       ?></td></tr>
+            <tr><td>PATH_INFO      </td><td><?php echo $_serverPathInfo;      ?></td></tr>
+            <tr><td>REQUEST_URI    </td><td><?php echo $_SERVER['REQUEST_URI'];    ?></td></tr>
+          </table>
+        </div>
+      </div>        
     </div>
     <script src="js/vendor.js"></script>
     <script src="app.js"></script>

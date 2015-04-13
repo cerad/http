@@ -2,8 +2,6 @@
 
 namespace Cerad\Component\HttpMessage;
 
-require __DIR__  . '/../../vendor/autoload.php';
-
 class MessageTest extends \PHPUnit_Framework_TestCase
 {
   public function testHeaderBag()
@@ -75,7 +73,7 @@ class MessageTest extends \PHPUnit_Framework_TestCase
   {
     $server = 
     [
-      'QUERY_STRING' => 'project=ng2016&title=NG+2016',
+      'REQUEST_URI' => '?project=ng2016&title=NG+2016',
     ];
     $serverBag = new ServerBag($server);
     $uriParts = $serverBag->getUriParts();

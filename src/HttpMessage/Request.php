@@ -114,36 +114,27 @@ class Request
    * Everything breaks as soon as I go to /web/index.php, can't find css etc
    * Need:  <base href="http://localhost:8080/web/">
    * Works: <base href="/web/">
-   * 
-   * SymfonyRequest::getBasePath . '/' represents the base href
-   * It is not directly available from the $_SERVER
    */
   public function getBaseHref()
   {
-    // index.php, think we always have these two
-    $scriptFileName = basename($this->server->get('SCRIPT_FILENAME'));
-    $scriptName     =          $this->server->get('SCRIPT_NAME');
-    
-    $pos = strpos($scriptName,$scriptFileName);
-    
-    // /web/
-    return $pos === false ? $scriptName : substr($scriptName,0,$pos);
+    $scriptName = $this->server->get('SCRIPT_NAME');
+    $pos = strrpos($scriptName,'/');
+    return substr($scriptName,0,$pos+1);    
   }
-  /* ===========================================
-   * PATH_INFO is almost there but always want a /
-   * Init it in the constructor
-   * 
-   * TODO: Probably does not work correctly from test script
-   * And maybe not from a sub directory
-   */
   public function getRoutePath() 
   { 
-    return $this->getUri()->get('path');
-    
-    die('Path ' . $this->getUri()->get('path'));
-    $pathInfo   = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : 'NONE';
-    die('PathInfo ' . $pathInfo . ' ' . $_SERVER['REQUEST_URI']);
-    return $this->server->get('PATH_INFO');
-  }
+    $scriptName    = $this->server->get('SCRIPT_NAME'); // /app.php
+    $scriptNameLen = strlen($scriptName);
 
+  //$requestPath = explode('?',$this->server->get('REQUEST_URI'))[0];
+    $requestPath = $this->getUri()->getPath();
+    
+    if (substr($requestPath,0,$scriptNameLen) == $scriptName) 
+    {
+      $routePath = substr($requestPath,$scriptNameLen);
+    }
+    else $routePath = $requestPath;
+    
+    return $routePath ? $routePath : '/';
+  }
 }
