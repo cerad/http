@@ -3,6 +3,7 @@ namespace Cerad\Component\HttpMessage;
 
 use Cerad\Component\HttpMessage\Response;
 use Cerad\Component\HttpMessage\ResponseJson;
+use Cerad\Component\HttpMessage\ResponsePreflight;
 
 class ResponseTest extends \PHPUnit_Framework_TestCase
 {
@@ -49,6 +50,13 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     
     $contentType = $response->getHeaderLine('Content-Type');
     $this->assertTrue(strpos($contentType,'json') !== false);
+    
+  }
+  public function testResponsePreflight()
+  {
+    // Always have an origin
+    $response = new ResponsePreflight('localhost');
+    $this->assertEquals('localhost',$response->getHeaderLine('Access-Control-Allow-Origin'));
     
   }
 }
