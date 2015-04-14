@@ -114,28 +114,4 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     
     $this->assertEquals('Art H',$content['name']);
   }
-  /* ====================================
-   * 
-   * Added by server
-     Connection:close
-     Host:localhost:8080
-     X-Powered-By:PHP/5.5.11
-   * 
-   * Added by Response
-     Cache-Control:no-cache
-     Content-type:text/html
-     Date:Wed, 08 Apr 2015 18:43:43 GMT
-   */
-  public function testResponse()
-  {
-    $content = 'HTML Content';
-    
-    $response = new Response($content);
-    
-    $this->assertEquals('no-cache',$response->headers->get('Cache-Control'));
-    
-    $this->assertEquals('text/html;charset=UTF-8',$response->headers->get('Content-Type'));
-    
-    $this->assertEquals(29,strlen($response->headers->get('Date')));
-  }
 }

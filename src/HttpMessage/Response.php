@@ -1,41 +1,40 @@
 <?php
 namespace Cerad\Component\HttpMessage;
 
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse; // For status code stuff
+use Cerad\Component\HttpMessagePsr7\Response as Psr7Response;
 
-class Response
+class Response extends Psr7Response
 {
-  public $headers;
-  
-  protected $statusCode;
-  protected $statusText;
-  
-  protected $charset  = 'UTF-8';
-  protected $protocol = 'HTTP/1.1';
+  protected $charset = 'UTF-8';
   
   protected $content;
   
   public function __construct($content = '', $statusCode = 200, $headers = [])
   {
     $this->content = $content;
-    $this->headers = new HeaderBag($headers);
-    
-    $statusText = 
-      isset(SymfonyResponse::$statusTexts[$statusCode]) ?
-            SymfonyResponse::$statusTexts[$statusCode]  :
-            null;
     
     $this->statusCode = $statusCode;
-    $this->statusText = $statusText;
+    $this->statusText = self::$statusTexts[$statusCode];
     
-    $this->headers->set('Cache-Control','no-cache');
-    $this->headers->set('Content-Type', 'text/html;charset=' . $this->charset);
-    
-    if (!$this->headers->get('Date')) 
+    if (!isset($headers['Cache-Control']))
+    {
+      $headers['Cache-Control'] = 'no-cache';
+    }
+    if (!isset($headers['Content-Type']))
+    {
+      $headers['Content-Type'] = 'text/html;charset=' . $this->charset;
+    }
+    if (!isset($headers['Date']))
     {
       $date = new \DateTime(null, new \DateTimeZone('UTC'));
-    //$date->setTimezone(new \DateTimeZone('UTC'));
-      $this->headers->set('Date', $date->format('D, d M Y H:i:s').' GMT');
+      $headers['Date'] = $date->format('D, d M Y H:i:s').' GMT';
+    }
+    foreach($headers as $key => $value)
+    {
+      $valueArray = is_array($value) ? $value : [$value];
+      
+      $this->headers[$key] = $valueArray;
+      $this->headerKeys[strtolower($key)] = $key;
     }
   }
   /* =====================================================
@@ -51,18 +50,17 @@ class Response
     if (headers_sent()) { return $this; }
 
     // status
-    header($this->protocol . ' ' . $this->statusCode . ' ' . $this->statusText, true, $this->statusCode);
+    header($this->protocolVersion . ' ' . $this->statusCode . ' ' . $this->statusText, true, $this->statusCode);
 
     // headers
-    foreach ($this->headers->get() as $name => $value) 
+    foreach ($this->headers as $name => $value) 
     {
-      header($name . ': ' . $value, false);
+      header($name . ': ' . implode(',',$value), false);
     }
   }
   public function sendContent()
   {
         echo $this->content;
   }
-  public function getStatusCode()   { return $this->statusCode; }
-  public function getReasonPhrase() { return $this->statusText; }
+  public function getContent() { return $this->content; }
 }

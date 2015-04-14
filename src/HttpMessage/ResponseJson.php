@@ -3,12 +3,14 @@ namespace Cerad\Component\HttpMessage;
 
 class ResponseJson extends Response
 {
-  public function __construct($content = '', $statusCode = 200, $headers = [])
+  public function __construct($contentArg = '', $statusCode = 200, $headers = [])
   {
-    $content = json_encode($content);
+    $contentJson = json_encode($contentArg); // TODO: Args
     
-    parent::__construct($content,$statusCode,$headers);
-    
-    $this->headers->set('Content-Type', 'applicationt/json;charset=' . $this->charset);
+    if (!isset($headers['Content-Type']))
+    {
+      $headers['Content-Type'] = 'applicationt/json;charset=' . $this->charset;
+    }
+    parent::__construct($contentJson,$statusCode,$headers);
   }
 }

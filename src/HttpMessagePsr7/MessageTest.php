@@ -34,4 +34,27 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     $headers = $message3->getHeaders();
     $this->assertEquals('charset=UTF-8',$headers['Content-Type'][1]);
   }
+  public function testWithAddedHeader()
+  {
+    $message1 = new Message();
+    $message2 = $message1->withHeader('Content-Type','application/json');
+    
+    $message3 = $message2->withAddedHeader('Content-Type','charset=utf-8');
+    
+    $this->assertEquals('application/json,charset=utf-8',$message3->getHeaderLine('Content-Type'));
+    
+    $header = $message3->getHeader('Content-Type');
+    $this->assertEquals('application/json',$header[0]);
+    $this->assertEquals('charset=utf-8',   $header[1]);
+  }
+  public function testWithoutHeader()
+  {
+    $message1 = new Message();
+    $message2 = $message1->withHeader('Content-Type','application/json');
+
+    $message3 = $message2->withoutHeader('Content-Type');
+    
+    $this->assertFalse($message3->hasHeader('Content-Type'));
+    
+  }
 }
