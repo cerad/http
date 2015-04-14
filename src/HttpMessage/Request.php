@@ -84,10 +84,11 @@ class Request
   
   public function getMethod() { return $this->method;   }
   
-  public function isPost()    { return $this->method == 'POST' ? true : false; }
+  public function isMethodPost()    { return $this->method == 'POST'    ? true : false; }
+  public function isMethodOptions() { return $this->method == 'OPTIONS' ? true : false; }
   
-  public function isForm() { return $this->isForm; }
-  public function isJson() { return $this->isJson; }
+  public function isContentForm() { return $this->isForm; }
+  public function isContentJson() { return $this->isJson; }
   
   public function getHost() 
   { 
@@ -136,5 +137,17 @@ class Request
     else $routePath = $requestPath;
     
     return $routePath ? $routePath : '/';
+  }
+  /* ==================================================
+   * PSR 7 Hacks
+   */
+  public function hasHeader($name)
+  {
+    $value = $this->headers->get($name);
+    return $value !== null ? true : false;
+  }
+  public function getHeaderLine($name)
+  {
+    return $this->headers->get($name);
   }
 }
