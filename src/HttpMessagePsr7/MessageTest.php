@@ -2,6 +2,7 @@
 
 namespace Cerad\Component\HttpMessagePsr7;
 
+use Cerad\Component\HttpMessagePsr7\Body;
 use Cerad\Component\HttpMessagePsr7\Message;
 
 class MessageTest extends \PHPUnit_Framework_TestCase
@@ -56,5 +57,14 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     
     $this->assertFalse($message3->hasHeader('Content-Type'));
     
+  }
+  public function testWithBody()
+  {
+    $body = new Body();
+    
+    $message1 = new Message();
+    $message2 = $message1->withBody($body);
+   
+    $this->assertEquals($body,$message2->getBody());
   }
 }

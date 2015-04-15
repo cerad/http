@@ -1,13 +1,14 @@
 <?php
 namespace Cerad\Component\HttpMessagePsr7;
 
-use Cerad\Component\HttpMessagePsr7\Message;
+use Cerad\Component\HttpMessagePsr7\Util     as Psr7Util;
+use Cerad\Component\HttpMessagePsr7\Message  as Psr7Message;
 
 //  \InvalidArgumentException as Psr7InvalidArgumentException;
 
 use Psr\Http\Message\ResponseInterface as Psr7ResponseInterface;
 
-class Response extends Message implements Psr7ResponseInterface
+class Response extends Psr7Message implements Psr7ResponseInterface
 { 
   // http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
   public static $statusTexts = 
@@ -24,19 +25,6 @@ class Response extends Message implements Psr7ResponseInterface
   {
     $statusText = $reasonPhrase ? $reasonPhrase : self::$statusTexts[$statusCode];
     
-    $response = clone $this;
-    
-    $responseClass = new \ReflectionClass(__CLASS__);
-    
-    $statusCodeProp = $responseClass->getProperty('statusCode');
-    $statusTextProp = $responseClass->getProperty('statusText');
-    
-    $statusCodeProp->setAccessible(true);
-    $statusTextProp->setAccessible(true);
-    
-    $statusCodeProp->setValue($response,$statusCode);
-    $statusTextProp->setValue($response,$statusText);
-    
-    return $response; 
+    return Psr7Util::setProp($this,['statusCode' => $statusCode, 'statusText' => $statusText]);
   }
 }

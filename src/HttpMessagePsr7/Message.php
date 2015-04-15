@@ -5,31 +5,26 @@ namespace Cerad\Component\HttpMessagePsr7;
 use \InvalidArgumentException as Psr7InvalidArgumentException;
 
 use Psr\Http\Message\MessageInterface as Psr7MessageInterface;
-use Psr\Http\Message\StreamableInterface as Psr7StreamInterface;
+use Psr\Http\Message\StreamInterface  as Psr7StreamInterface;
+
+use Cerad\Component\HttpMessagePsr7\Util as Psr7Util;
 
 class Message implements Psr7MessageInterface
 { 
+  protected $body;
   protected $protocolVersion = null;
   
   protected $headers    = [];
   protected $headerKeys = [];
   
-  protected $body;
-  
   public function getProtocolVersion()
   {
     return $this->protocolVersion;
   }
-  public function withProtocolVersion($version)
+  public function withProtocolVersion($protocolVersion)
   {
-    $message = clone $this;
-    
-    $messageClass = new \ReflectionClass(__CLASS__);
-    $versionProp = $messageClass->getProperty('protocolVersion');
-    $versionProp->setAccessible(true);
-    $versionProp->setValue($message,$version);
-    
-    return $message;
+    // TODO: Validate version
+    return Psr7Util::setProp($this,'protocolVersion',$protocolVersion);
   }
   public function getHeader($name)
   {
@@ -62,7 +57,7 @@ class Message implements Psr7MessageInterface
     
     $message = clone $this;
     
-    $messageClass = new \ReflectionClass(__CLASS__);
+    $messageClass = new \ReflectionClass($message);
     
     $headersProp    = $messageClass->getProperty('headers');
     $headerKeysProp = $messageClass->getProperty('headerKeys');
@@ -102,7 +97,7 @@ class Message implements Psr7MessageInterface
     
     $message = clone $this;
     
-    $messageClass = new \ReflectionClass(__CLASS__);
+    $messageClass = new \ReflectionClass($message);
     
     $headersProp    = $messageClass->getProperty('headers');
     $headerKeysProp = $messageClass->getProperty('headerKeys');
@@ -128,18 +123,19 @@ class Message implements Psr7MessageInterface
   }
   public function withBody(Psr7StreamInterface $body)
   {
-    $message = clone $this;
-    
-    $messageClass = new \ReflectionClass(__CLASS__);
-    $bodyProp = $messageClass->getProperty('body');
-    $bodyProp->setAccessible(true);
-    $bodyProp->setValue($message,$body);
-    
-    return $message;
+    return Psr7Util::setProp($this,'body',$body);    
   }
-  // Fake
-  public function getHeaderLines($name)
+  /* ===================================================
+   * Helper function for multiple headers
+   */
+  protected function setHeaders($headers)
   {
-    
+    foreach($headers as $key => $value)
+    {
+      $valueArray = is_array($value) ? $value : [$value];
+      
+      $this->headers[$key] = $valueArray;
+      $this->headerKeys[strtolower($key)] = $key;
+    }
   }
 }

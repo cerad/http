@@ -7,11 +7,9 @@ class Response extends Psr7Response
 {
   protected $charset = 'UTF-8';
   
-  protected $content;
-  
   public function __construct($content = '', $statusCode = 200, $headers = [])
   {
-    $this->content = $content;
+    $this->body = new Body($content);
     
     $this->statusCode = $statusCode;
     $this->statusText = self::$statusTexts[$statusCode];
@@ -29,13 +27,7 @@ class Response extends Psr7Response
       $date = new \DateTime(null, new \DateTimeZone('UTC'));
       $headers['Date'] = $date->format('D, d M Y H:i:s').' GMT';
     }
-    foreach($headers as $key => $value)
-    {
-      $valueArray = is_array($value) ? $value : [$value];
-      
-      $this->headers[$key] = $valueArray;
-      $this->headerKeys[strtolower($key)] = $key;
-    }
+    $this->setHeaders($headers);
   }
   /* =====================================================
    * Dump response to the client
@@ -60,7 +52,6 @@ class Response extends Psr7Response
   }
   public function sendContent()
   {
-        echo $this->content;
+    echo $this->getBody()->getContents();
   }
-  public function getContent() { return $this->content; }
 }
