@@ -37,7 +37,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     
     $this->assertEquals(29,strlen($response->getHeaderLine('Date')));
     
-    $this->assertEquals($content,$response->getContent());
+    $this->assertEquals($content,$response->getBody()->getContents());
   }
   public function testResponseJson()
   {
@@ -45,7 +45,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     
     $response = new ResponseJson($item);
     
-    $itemx = json_decode($response->getContent(),true);
+    $itemx = json_decode($response->getBody()->getContents(),true);
     $this->assertEquals('Art',$itemx['name']);
     
     $contentType = $response->getHeaderLine('Content-Type');

@@ -9,11 +9,10 @@
 >
   <testsuites>
     <testsuite name="HttpMessage Cerad Test Suite">
-      <directory>src/HttpMessage/ServerRequestTest.php</directory>
-      <directory>src/HttpMessage/MessageTest.php</directory>
+      <directory>src/HttpMessage</directory>
     </testsuite>
     <testsuite name="HttpMessage Psr7 Test Suite">
-      <directory>src/HttpMessagePsr7/*Test.php</directory>
+      <directory>src/HttpMessagePsr7</directory>
     </testsuite>
   </testsuites>
 </phpunit>

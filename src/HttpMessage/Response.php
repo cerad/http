@@ -1,6 +1,8 @@
 <?php
 namespace Cerad\Component\HttpMessage;
 
+use Cerad\Component\HttpMessage\Body;
+
 use Cerad\Component\HttpMessagePsr7\Response as Psr7Response;
 
 class Response extends Psr7Response
@@ -52,6 +54,6 @@ class Response extends Psr7Response
   }
   public function sendContent()
   {
-    echo $this->getBody()->getContents();
+    echo $this->body->getContents();
   }
 }

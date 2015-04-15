@@ -38,7 +38,7 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     $request1 = new Request();
     $request2 = $request1->withRequestTarget('/something');
     
-    $this->assertEquals('something',$request2->getRequestTarget());
+    $this->assertEquals('/something',$request2->getRequestTarget());
   }
 
 }

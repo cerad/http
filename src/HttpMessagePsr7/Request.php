@@ -16,7 +16,14 @@ class Request extends Psr7Message implements Psr7RequestInterface
   
   protected $requestTarget = '/';
   
-  public function getMethod() { return $this->method; }
+  public function getMethod() 
+  { 
+    return $this->method; 
+  }
+  protected function checkMethod($methodArg)
+  {
+    return strtoupper($methodArg);
+  }
   public function withMethod($method)
   {
     return ($this->method === $method) ? $this : Psr7Util::setProp($this,'method',$method);

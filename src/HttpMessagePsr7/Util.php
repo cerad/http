@@ -23,4 +23,12 @@ class Util
     }
     return $clone;
   }
+  // Need this?
+  static function getProp($obj, $name)
+  {
+    $propClass = new \ReflectionClass($obj);
+    $prop = $propClass->getProperty($name);
+    $prop->setAccessible(true);
+    return $prop->getValue();
+  }
 }

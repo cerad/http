@@ -2,21 +2,31 @@
 
 namespace Cerad\Component\HttpMessage;
 
-use Cerad\Component\HttpMessagePsr7\Request as Psr7Request;
-
-class Request extends Psr7Request
+class Request
 {
+  public $uri;
+  public $server;
+  public $headers;
+  public $attributes;
+  
+  protected $method;
+  protected $protocol;
+  
+  protected $content;
+  
   protected $isJson = false;
   protected $isForm = false;
   
   public function __construct($serverData, $headers = [], $content = null)
   {
+    $this->attributes = new AttributeBag();
+    
     if (is_array($serverData))
     {
       $this->server  = new ServerBag($serverData);
       $serverHeaders = $this->server->getHeaders();
       $this->headers = new HeaderBag(array_replace($serverHeaders,(array)$headers));
-      $this->uri     = new Uri($this->server->getUriParts());
+      $this->uri     = new UriBag($this->server->getUriParts());
       
       $this->method   = $this->server->get('REQUEST_METHOD');
       $this->protocol = $this->server->get('SERVER_PROTOCOL');
@@ -31,22 +41,25 @@ class Request extends Psr7Request
           $url = $parts[0]; // No method, probably bad
           break;
         case 2: 
-          $this->method = $this->checkMethod($parts[0]);
-          $url =          $parts[1];
+          $this->method = strtoupper($parts[0]);
+          $url =                     $parts[1];
           break;
         default:
-          $this->method = $this->checkMethod($parts[0]);
-          $url =          $parts[1];
-          $this->protocolVersion = $this->checkProtocolVersion($parts[2]);
+          $this->method = strtoupper($parts[0]);
+          $url =                     $parts[1];
+          $this->protocol =          $parts[2];
       }
-      $this->uri = new Uri($url);
+      $this->uri = new UriBag($url);
       
-      $headers['Host'] = $this->uri->getHost(); // Sync
+      $headers['Host'] = $this->uri->get('host'); // Sync
       
-      $this->setHeaders($headers);
+      $this->headers = new HeaderBag($headers);
       
-      return;
-    } 
+      // Might need more server initialization?
+      $this->server  = new ServerBag(['PATH_INFO' => $this->uri->getPath()]);
+    }
+    $this->attributes = new AttributeBag();
+    
     $this->content = file_get_contents('php://input');
     
     if (!$this->content) $this->content = $content;
@@ -67,11 +80,36 @@ class Request extends Psr7Request
        $this->content = $formData;
     }
   }
+  public function getProtocolVersion() { return $this->protocol; }
+  
+  public function getMethod() { return $this->method;   }
+  
   public function isMethodPost()    { return $this->method == 'POST'    ? true : false; }
   public function isMethodOptions() { return $this->method == 'OPTIONS' ? true : false; }
   
   public function isContentForm() { return $this->isForm; }
   public function isContentJson() { return $this->isJson; }
+  
+  public function getHost() 
+  { 
+    // header->get('Host')
+    return $this->uri->get('host'); 
+  }
+  public function getHeader($name, $default = null, $asArray = false)
+  {
+    return $this->headers->get($name,$default,$asArray);
+  }
+  public function getContent() { return $this->content; }
+  
+  public function getUri() { return $this->uri; }
+  
+  public function getServerParams() { return $this->server->get(); }
+  public function getQueryParams() 
+  { 
+    $params = [];
+    parse_str($this->uri->get('query'),$params);
+    return $params;
+  }
   
   /* ====================================================
    * Everything breaks as soon as I go to /web/index.php, can't find css etc
@@ -99,5 +137,17 @@ class Request extends Psr7Request
     else $routePath = $requestPath;
     
     return $routePath ? $routePath : '/';
+  }
+  /* ==================================================
+   * PSR 7 Hacks
+   */
+  public function hasHeader($name)
+  {
+    $value = $this->headers->get($name);
+    return $value !== null ? true : false;
+  }
+  public function getHeaderLine($name)
+  {
+    return $this->headers->get($name);
   }
 }

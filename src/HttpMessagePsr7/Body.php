@@ -8,19 +8,6 @@ class Body implements StreamInterface
 {
   protected $stream;
   
-  public function __construct($contents = null)
-  {
-    if (is_resource($contents))
-    {
-      $this->stream = $contents;
-      return;
-    }
-    $stream = fopen('php://temp','r+');
-    fputs ($stream,$contents);
-    rewind($stream);
-    
-    $this->stream = $stream;
-  }
   public function __toString()
   {
     $stream = $this->stream;

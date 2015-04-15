@@ -85,33 +85,4 @@ class MessageTest extends \PHPUnit_Framework_TestCase
     
     $this->assertEquals('project=ng2016&title=NG 2016',$uriBag->get('query'));
   }
-  public function testRequest()
-  {
-    $uriString = 'https://user:pass@api.zayso.org:8080/referees?project=ng2016&title=NG+2016#42';
-    
-    $requestLine = 'POST ' . $uriString . ' HTTP/1.1';
-    
-    $request = new Request($requestLine);
-    
-    $this->assertEquals('POST',         $request->getMethod());
-    $this->assertEquals('HTTP/1.1',     $request->getProtocolVersion());
-    $this->assertEquals('/referees',    $request->getUri()->getPath());
-    $this->assertEquals('api.zayso.org',$request->getHost());
-    $this->assertEquals('api.zayso.org',$request->getHeader('Host'));    
-  }
-  public function testRequestPost()
-  {
-    $requestLine = 'POST /referees';
-    $headers = 
-    [
-      'Content-Type' => 'application/json',
-    ];
-    $data = ['name' => 'Art H','roles' => ['Developer']];
-    
-    $request = new Request($requestLine,$headers,json_encode($data));
-    
-    $content = $request->getContent();
-    
-    $this->assertEquals('Art H',$content['name']);
-  }
 }

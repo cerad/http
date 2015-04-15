@@ -122,14 +122,22 @@ class Uri implements Psr7UriInterface
   /* ======================================================
    * User Info
    */
+  protected function checkUser($user) 
+  { 
+    return $user !== null ? $user : ''; 
+  }
+  protected function checkPass($pass) 
+  { 
+    return $pass ? $pass : null; 
+  }
   public function getUserInfo() 
   { 
     return $this->pass ? $this->user . ':' . $this->pass : $this->user;
   }
   public function withUserInfo($userArg,$passArg = null)
   {
-    $userChecked = ($userArg === null) ?   '' : $userArg;
-    $passChecked = ($passArg === null) ? null : $passArg;
+    $userChecked = $this->checkUser($userArg);
+    $passChecked = $this->checkPass($passArg);
     
     if (($this->user === $userChecked) && ($this->pass == $passChecked)) return $this;
     
