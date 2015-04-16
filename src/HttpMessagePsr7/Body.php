@@ -2,9 +2,9 @@
 
 namespace Cerad\Component\HttpMessagePsr7;
 
-use Psr\Http\Message\StreamInterface as StreamInterface;
+use Psr\Http\Message\StreamInterface as Psr7StreamInterface;
 
-class Body implements StreamInterface
+class Body implements Psr7StreamInterface
 {
   protected $meta;
   protected $stream;
@@ -12,7 +12,7 @@ class Body implements StreamInterface
   public function __toString()
   {
     $stream = $this->stream;
-    rewind($stream);
+    $this->rewind();
     return stream_get_contents($stream);
   }
   public function close()
@@ -25,9 +25,9 @@ class Body implements StreamInterface
     fclose($this->stream);
     $this->stream = null;
   }
-  public function getSize()      { return null; }
-  public function tell()         { return 0; }
-  public function eof()          { return false; }
+  public function getSize() { return null; }
+  public function tell()    { return 0; }
+  public function eof()     { return false; }
   public function seek($offset, $whence = SEEK_SET) {}
   
   public function isReadable()   { return true; }
@@ -45,13 +45,13 @@ class Body implements StreamInterface
   public function read($length)
   { 
     $stream = $this->stream;
-    $this->rewind($stream);
+    $this->rewind();
     return stream_get_contents($stream);
   }
   public function getContents()
   {
     $stream = $this->stream;
-    $this->rewind($stream);
+    $this->rewind();
     return stream_get_contents($stream); 
   }
   public function getMetadata($key = null)
