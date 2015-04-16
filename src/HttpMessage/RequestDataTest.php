@@ -3,8 +3,50 @@ namespace Cerad\Component\HttpMessage;
 
 use Cerad\Component\HttpMessage\Request;
 
-class ServerRequestTest extends \PHPUnit_Framework_TestCase
+class RequestDataTest extends \PHPUnit_Framework_TestCase
 { 
+  public function testMethodProtocolVersion()
+  {
+    $server =
+    [
+      'REQUEST_METHOD'  => 'put',
+      'SERVER_PROTOCOL' => 'HTTP/1.0',
+    ];
+    $request = new Request($server);
+    
+    $this->assertEquals('PUT',$request->getMethod());
+    $this->assertEquals('1.0',$request->getProtocolVersion());
+    
+  }
+  public function testRequestUri()
+  {
+    $server =
+    [
+      'REQUEST_URI' => '/xxx?project=ng2016&title=NG+2016',
+    ];
+    $request = new Request($server);
+    
+    $this->assertEquals('/xxx',$request->getUri()->getPath());
+    $this->assertEquals('/xxx',$request->getRoutePath());
+    
+    $queryParams = $request->getQueryParams();
+    $this->assertEquals('NG 2016',$queryParams['title']);
+  }
+  public function testHeaders()
+  {
+    $server =
+    [
+      'REQUEST_URI' => '/xxx?project=ng2016&title=NG+2016',
+      'HTTP_HOST'   => 'api.zayso.local'
+    ];
+    $request = new Request($server);
+    
+  //$this->assertEquals('api.zayso.local',$request->getUri()->getHost());
+    $this->assertEquals('api.zayso.local',$request->getHeaderLine('Host'));
+  }
+  /* ======================================================
+   * Bunch of different cases for baseHref and routePath
+   */
   public function test1()
   {
     $server = 

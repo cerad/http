@@ -2,94 +2,99 @@
 
 namespace Cerad\Component\HttpMessage;
 
-use Cerad\Component\HttpMessagePsr7\Request as Psr7Request;
+use Cerad\Component\HttpMessagePsr7\ServerRequest as Psr7ServerRequest;
 
-class Request extends Psr7Request
+class Request extends Psr7ServerRequest
 {
+  protected $baseHref  = '/';
+  protected $routePath = '/';
+  
   protected $isJson = false;
   protected $isForm = false;
   
-  public function __construct($serverData, $headers = [], $content = null)
+  public function __construct($serverData = null, $headers = [], $content = null)
   {
     if (is_array($serverData))
     {
-      $this->server  = new ServerBag($serverData);
-      $serverHeaders = $this->server->getHeaders();
-      $this->headers = new HeaderBag(array_replace($serverHeaders,(array)$headers));
-      $this->uri     = new Uri($this->server->getUriParts());
-      
-      $this->method   = $this->server->get('REQUEST_METHOD');
-      $this->protocol = $this->server->get('SERVER_PROTOCOL');
+      return $this->createFromServerData($serverData,$headers,$content);
     }
     if (is_string($serverData)) 
     {
-      // GET url PROTOCOL
-      $parts = explode(' ',$serverData);
-      switch(count($parts))
-      {
-        case 1: 
-          $url = $parts[0]; // No method, probably bad
-          break;
-        case 2: 
-          $this->method = $this->checkMethod($parts[0]);
-          $url =          $parts[1];
-          break;
-        default:
-          $this->method = $this->checkMethod($parts[0]);
-          $url =          $parts[1];
-          $this->protocolVersion = $this->checkProtocolVersion($parts[2]);
-      }
-      $this->uri = new Uri($url);
-      
-      $headers['Host'] = $this->uri->getHost(); // Sync
-      
-      $this->setHeaders($headers);
-      
-      return;
-    } 
-    $this->content = file_get_contents('php://input');
-    
-    if (!$this->content) $this->content = $content;
-    
-    // Go ahead and parse here, implement getParserContent later
-    $contentType = strtolower($this->headers->get('Content-Type'));
-    
-    if (strpos($contentType,'application/json') !== false)
-    {
-      $this->isJson  = true;
-      $this->content = json_decode($this->content,true); 
+      return $this->createFromRequestLine($serverData,$headers,$content);
     }
-    if (strpos($contentType,'application/x-www-form-urlencoded') !== false)
-    {
-       $this->isForm = true;
-       $formData = [];
-       parse_str($this->content,$formData);
-       $this->content = $formData;
-    }
+    // Empty constructor is okay
+    return;
   }
-  public function isMethodPost()    { return $this->method == 'POST'    ? true : false; }
-  public function isMethodOptions() { return $this->method == 'OPTIONS' ? true : false; }
-  
-  public function isContentForm() { return $this->isForm; }
-  public function isContentJson() { return $this->isJson; }
-  
-  /* ====================================================
-   * Everything breaks as soon as I go to /web/index.php, can't find css etc
-   * Need:  <base href="http://localhost:8080/web/">
-   * Works: <base href="/web/">
+  /* =========================================================
+   * Build request from $_SERVER
    */
-  public function getBaseHref()
+  protected function createFromServerData(array $serverData,$headers=[],$content=null)
   {
-    $scriptName = $this->server->get('SCRIPT_NAME');
-    $pos = strrpos($scriptName,'/');
-    return substr($scriptName,0,$pos+1);    
-  }
-  public function getRoutePath() 
-  { 
-    $scriptName    = $this->server->get('SCRIPT_NAME'); // /app.php
-    $scriptNameLen = strlen($scriptName);
+    $this->serverParams = $serverParams = array_replace(
+    [
+      'SERVER_NAME'     => 'localhost',
+      'SERVER_PORT'     => 80,
+      'SERVER_PROTOCOL' => 'HTTP/1.1', // USED
+      
+      'REQUEST_URI'     => null,   // USED
+      'REQUEST_TIME'    => time(), // Not Used CURRENTLY
+      'REQUEST_METHOD'  => 'GET',  // USED
+      
+      'SCRIPT_NAME'     => '', // USED for baseHref and routePath
+      'HTTPS'           => 'off',
+      
+      // Headers
+      'CONTENT_TYPE'    => 'text/plain', // 'application/x-www-form-urlencoded'
+      'HTTP_HOST'       => 'localhost',
+    ],
+    $serverData);
+    
+    // The basics
+    $this->method          = $this->checkMethod(         $serverParams['REQUEST_METHOD']);
+    $this->protocolVersion = $this->checkProtocolVersion($serverParams['SERVER_PROTOCOL']);
+    
+    // Request uri seems to be the most reliable
+    $requestUriParts = explode('?',$serverParams['REQUEST_URI']);
+    $uriParts = [];
+    $uriParts['path']  = $requestUriParts[0];
+    $uriParts['query'] = isset($requestUriParts[1]) ? $requestUriParts[1] : null;
+    
+    $uriParts['host'] = $serverParams['HTTP_HOST'];
+    
+    $uriParts['scheme'] = $serverParams['HTTPS'] !== 'off' ? 'http' : 'https';
+    $uriParts['port']   = (int)$serverParams['SERVER_PORT'];
+    
+    // Leave user/pass until we need them
+    
+    // Build the uri
+    $this->uri = $uri = new Uri($uriParts);
+    parse_str($uri->getQuery(),$this->queryParams);
+    
+    // These do not have HTTP_ prefixes
+    $contentHeaders = array('CONTENT_LENGTH' => true, 'CONTENT_MD5' => true, 'CONTENT_TYPE' => true);
+    
+    foreach($serverParams as $key => $value)
+    {
+      if (substr($key,0,5) == 'HTTP_')
+      {
+        $name = $this->transformHeaderKey(substr($key,5));
+        $headers[$name] = isset($headers[$name]) ? $headers[$name] : $value;
+      }
+      if (isset($contentHeaders[$key])) 
+      {
+        $name = $this->transformHeaderKey($key,5);
+        $headers[$name] = isset($headers[$name]) ? $headers[$name] : $value;
+      }
+    }
+    $this->setHeaders($headers);
 
-  //$requestPath = explode('?',$this->server->get('REQUEST_URI'))[0];
+    // baseHref is before any php script
+    $scriptName = $serverParams['SCRIPT_NAME'];
+    $pos = strrpos($scriptName,'/');
+    $this->baseHref = substr($scriptName,0,$pos+1);
+    
+    // routePath is after any script name
+    $scriptNameLen = strlen($scriptName);
     $requestPath = $this->getUri()->getPath();
     
     if (substr($requestPath,0,$scriptNameLen) == $scriptName) 
@@ -98,6 +103,91 @@ class Request extends Psr7Request
     }
     else $routePath = $requestPath;
     
-    return $routePath ? $routePath : '/';
+    $this->routePath = $routePath ? $routePath : '/';
+    
+    // Content stuff
+    $stream = $content ? $content : fopen('php://input','r+');
+    $this->body = new Body($stream);
+    $this->parseBody();
   }
+  protected function transformHeaderKey($key)
+  {
+    return implode('-', array_map('ucfirst', explode('_',strtolower($key))));
+  }
+  /* =========================================================
+   * POST url
+   */
+  protected function createFromRequestLine($requestLine,$headers=[],$content=null)
+  {
+    // GET url PROTOCOL
+    $parts = explode(' ',$requestLine);
+    switch(count($parts))
+    {
+      case 1: 
+        $url = $parts[0]; // No method, probably bad
+        break;
+      case 2: 
+        $this->method = $this->checkMethod($parts[0]);
+        $url =          $parts[1];
+        break;
+      default:
+        $this->method = $this->checkMethod($parts[0]);
+        $url =          $parts[1];
+        $this->protocolVersion = $this->checkProtocolVersion($parts[2]);
+    }
+    $this->uri = $uri = new Uri($url);
+      
+    if (!isset($headers['Host']))
+    {
+      $headers['Host'] = $uri->getHost();
+    }
+    if (!isset($headers['Content-Type']))
+    {
+      $headers['Content-Type'] = 'text/plain';
+    }
+    $this->setHeaders($headers);
+      
+    $this->routePath = $uri->getPath();
+    $this->requestTarget = $url;
+      
+    parse_str($uri->getQuery(),$this->queryParams);
+    
+    $this->body = new Body($content);
+    
+    $this->parseBody();
+  }
+  /* ======================================================
+   * For now this gets called when the request is constructed
+   * Avoids the immutable stuff
+   */
+  protected function parseBody()
+  {
+    // Go ahead and parse here, implement getParserContent later
+    $contentType = strtolower($this->getHeaderLine('Content-Type'));
+    
+    if (strpos($contentType,'application/json') !== false)
+    {
+      $this->isJson  = true;
+      $this->parsedBody = json_decode($this->body->getContents(),true); 
+    }
+    if (strpos($contentType,'application/x-www-form-urlencoded') !== false)
+    {
+       $this->isForm = true;
+       $formData = [];
+       parse_str($this->body->getContents(),$formData);
+       $this->parsedBody = $formData;
+    }
+  }
+  /* =========================================================
+   * Some misc stuff
+   */
+  public function isMethodPost()    { return $this->method == 'POST'    ? true : false; }
+  public function isMethodOptions() { return $this->method == 'OPTIONS' ? true : false; }
+  
+  public function isContentForm() { return $this->isForm; }
+  public function isContentJson() { return $this->isJson; }
+  
+  public function getBaseHref () { return $this->baseHref;  }
+  public function getRoutePath() { return $this->routePath; }
+  
 }

@@ -12,7 +12,7 @@ class ServerRequest extends Psr7Request implements Psr7ServerRequestInterface
   protected $cookieParams  = [];
   protected $queryParams   = [];
   protected $uploadedFiles = [];
-  protected $parsedBody    = [];
+  protected $parsedBody    = null;
   protected $attributes    = [];
   
   public function getServerParams () { return $this->serverParams;  }

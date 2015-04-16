@@ -4,14 +4,14 @@ namespace Cerad\Component\HttpMessage;
 
 use Cerad\Component\HttpMessage\Request;
 
-class RequestTest extends \PHPUnit_Framework_TestCase
+class RequestLineTest extends \PHPUnit_Framework_TestCase
 { 
   /**
-   * @expectedException PHPUnit_Framework_Error
+   *  expectedException PHPUnit_Framework_Error
    */
    public function testConstruct()
   {
-    $request = new Request();
+    $request = new Request(); // Empty is okay for now
   }
   public function testRequestUrl()
   {
@@ -25,13 +25,25 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals('1.1',          $request->getProtocolVersion());
     $this->assertEquals('/referees',    $request->getUri()->getPath());
     $this->assertEquals('api.zayso.org',$request->getUri()->getHost());
-    $this->assertEquals('api.zayso.org',$request->getHeaderLine('Host'));    
+    $this->assertEquals('api.zayso.org',$request->getHeaderLine('Host'));
+    
+    $queryParams = $request->getQueryParams();
+    $this->assertEquals('NG 2016',$queryParams['title']);
   }
   public function testRequestHeader()
   {
+    $headers = 
+    [
+      'Content-Type' => 'application/json',
+      'Accept'       => 'whatever',
+    ];
+    $requestLine = 'POST /referees';
+   
+    $request = new Request($requestLine,$headers);
     
+    $this->assertEquals('whatever',$request->getHeaderLine('Accept'));
   }
-  public function sestRequestPost()
+  public function testRequestPost()
   {
     $requestLine = 'POST /referees';
     $headers = 
@@ -41,10 +53,9 @@ class RequestTest extends \PHPUnit_Framework_TestCase
     $data = ['name' => 'Art H','roles' => ['Developer']];
     
     $request = new Request($requestLine,$headers,json_encode($data));
-    $this->assertEquals('application/json');
+        
+    $item = $request->getParsedBody();
     
-    $content = $request->getBody()->getContents();
-    
-    $this->assertEquals('Art H',$content['name']);
+    $this->assertEquals('Art H',$item['name']);
   }
 }
