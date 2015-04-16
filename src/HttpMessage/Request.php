@@ -12,15 +12,15 @@ class Request extends Psr7ServerRequest
   protected $isJson = false;
   protected $isForm = false;
   
-  public function __construct($serverData = null, $headers = [], $content = null)
+  public function __construct($serverData = null, $headers = [], $contents = null)
   {
     if (is_array($serverData))
     {
-      return $this->createFromServerData($serverData,$headers,$content);
+      return $this->createFromServerData($serverData,$headers,$contents);
     }
     if (is_string($serverData)) 
     {
-      return $this->createFromRequestLine($serverData,$headers,$content);
+      return $this->createFromRequestLine($serverData,$headers,$contents);
     }
     // Empty constructor is okay
     return;
@@ -28,7 +28,7 @@ class Request extends Psr7ServerRequest
   /* =========================================================
    * Build request from $_SERVER
    */
-  protected function createFromServerData(array $serverData,$headers=[],$content=null)
+  protected function createFromServerData(array $serverData, $headers=[], $contents=null)
   {
     $this->serverParams = $serverParams = array_replace(
     [
@@ -106,9 +106,11 @@ class Request extends Psr7ServerRequest
     $this->routePath = $routePath ? $routePath : '/';
     
     // Content stuff
-    $stream = $content ? $content : fopen('php://input','r+');
+    $stream = $contents ? $contents : fopen('php://input','r+');
+    
     $this->body = new Body($stream);
-    $this->parseBody();
+    
+    $this->parsedBody = $this->parseBody();
   }
   protected function transformHeaderKey($key)
   {
@@ -117,7 +119,7 @@ class Request extends Psr7ServerRequest
   /* =========================================================
    * POST url
    */
-  protected function createFromRequestLine($requestLine,$headers=[],$content=null)
+  protected function createFromRequestLine($requestLine, $headers=[], $contents=null)
   {
     // GET url PROTOCOL
     $parts = explode(' ',$requestLine);
@@ -152,31 +154,9 @@ class Request extends Psr7ServerRequest
       
     parse_str($uri->getQuery(),$this->queryParams);
     
-    $this->body = new Body($content);
+    $this->body = new Body($contents);
     
-    $this->parseBody();
-  }
-  /* ======================================================
-   * For now this gets called when the request is constructed
-   * Avoids the immutable stuff
-   */
-  protected function parseBody()
-  {
-    // Go ahead and parse here, implement getParserContent later
-    $contentType = strtolower($this->getHeaderLine('Content-Type'));
-    
-    if (strpos($contentType,'application/json') !== false)
-    {
-      $this->isJson  = true;
-      $this->parsedBody = json_decode($this->body->getContents(),true); 
-    }
-    if (strpos($contentType,'application/x-www-form-urlencoded') !== false)
-    {
-       $this->isForm = true;
-       $formData = [];
-       parse_str($this->body->getContents(),$formData);
-       $this->parsedBody = $formData;
-    }
+    $this->parsedBody = $this->parseBody();
   }
   /* =========================================================
    * Some misc stuff

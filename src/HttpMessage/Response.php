@@ -56,4 +56,9 @@ class Response extends Psr7Response
   {
     echo $this->body->getContents();
   }
+  // Handy for tests
+  public function getParsedBody()
+  {
+    return $this->parseBody();
+  }
 }

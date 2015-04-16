@@ -115,4 +115,28 @@ class Message implements Psr7MessageInterface
       $this->headerKeys[strtolower($key)] = $key;
     }
   }
+  /* ======================================================
+   * Helper function to parse body based on Content-Type
+   */
+  protected function parseBody()
+  {
+    $contents = $this->body->getContents();
+    $contentType = strtolower($this->getHeaderLine('Content-Type'));
+    
+    if (strpos($contentType,'application/json') !== false)
+    {
+      $this->isJson  = true;
+      return json_decode($contents,true); 
+    }
+    if (strpos($contentType,'application/x-www-form-urlencoded') !== false)
+    {
+       $this->isForm = true;
+       $formData = [];
+       parse_str($contents,$formData);
+       return $formData;
+    }
+    // Not sure
+    return $contents;
+  }
+
 }

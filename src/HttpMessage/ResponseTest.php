@@ -37,7 +37,7 @@ class ResponseTest extends \PHPUnit_Framework_TestCase
     
     $this->assertEquals(29,strlen($response->getHeaderLine('Date')));
     
-    $this->assertEquals($content,$response->getBody()->getContents());
+    $this->assertEquals($content . 'x',$response->getParsedBody());
   }
   public function testResponseJson()
   {
