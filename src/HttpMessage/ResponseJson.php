@@ -9,7 +9,7 @@ class ResponseJson extends Response
     
     if (!isset($headers['Content-Type']))
     {
-      $headers['Content-Type'] = 'applicationt/json;charset=' . $this->charset;
+      $headers['Content-Type'] = 'application/json;charset=' . $this->charset;
     }
     parent::__construct($contentJson,$statusCode,$headers);
   }
