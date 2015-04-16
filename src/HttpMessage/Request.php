@@ -190,4 +190,27 @@ class Request extends Psr7ServerRequest
   public function getBaseHref () { return $this->baseHref;  }
   public function getRoutePath() { return $this->routePath; }
   
+  /* ==========================================================
+   * Muttable attributes stuff
+   */
+  public function setAttributes(array $attrs)
+  {
+    foreach($attrs as $name => $value)
+    {
+      $this->attributes[$name] = $value;
+    }
+  }
+  public function setAttribute($name, $value = null)
+  {
+    if ($value === null)
+    {
+      if (isset($this->attributes[$name])) unset($this->attributes[$name]);
+      return;
+    }
+    $this->attributes[$name] = $value;
+  }
+  public function hasAttribute($name)
+  {
+    return isset($this->attributes[$name]) ? true : false;
+  }  
 }
