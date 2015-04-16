@@ -70,15 +70,15 @@
         </div>
         <div class="col-sm-6">
           <table class="table">
-            <tr><td>Cerad Query    </td><td><?php echo $ceradUri->get('query'); ?></td></tr>
-            <tr><td>Cerad Base Href</td><td><?php echo $ceradRequest->getBaseHref(); ?></td></tr>
-            <tr><td>Cerad Path     </td><td><?php echo $ceradUri->get('path');  ?></td></tr>
-            <tr><td>Cerad Route    </td><td><?php echo $ceradRequest->getRoutePath(); ?></td></tr>
-            <tr><td>REQUEST_URI    </td><td><?php echo $ceradServer['REQUEST_URI'];     ?></td></tr>
-            <tr><td>PATH_INFO      </td><td><?php echo $ceradServer['PATH_INFO'];       ?></td></tr>
-            <tr><td>SCRIPT_FILENAME</td><td><?php echo $ceradServer['SCRIPT_FILENAME']; ?></td></tr>
-            <tr><td>SCRIPT_NAME    </td><td><?php echo $ceradServer['SCRIPT_NAME'];     ?></td></tr>
-            <tr><td>PHP_SELF       </td><td><?php echo $ceradServer['PHP_SELF'];        ?></td></tr>
+            <tr><td>Cerad Query     </td><td><?php echo $ceradUri->getQuery();           ?></td></tr>
+            <tr><td>Cerad Base Href </td><td><?php echo $ceradRequest->getBaseHref();    ?></td></tr>
+            <tr><td>Cerad Route Path</td><td><?php echo $ceradRequest->getRoutePath();   ?></td></tr>
+            <tr><td>Cerad Uri Path  </td><td><?php echo $ceradUri->getPath();            ?></td></tr>
+            <tr><td>REQUEST_URI     </td><td><?php echo $ceradServer['REQUEST_URI'];     ?></td></tr>
+            <tr><td>PATH_INFO       </td><td><?php echo $ceradServer['PATH_INFO'];       ?></td></tr>
+            <tr><td>SCRIPT_FILENAME </td><td><?php echo $ceradServer['SCRIPT_FILENAME']; ?></td></tr>
+            <tr><td>SCRIPT_NAME     </td><td><?php echo $ceradServer['SCRIPT_NAME'];     ?></td></tr>
+            <tr><td>PHP_SELF        </td><td><?php echo $ceradServer['PHP_SELF'];        ?></td></tr>
            </table>
         </div>
       </div>
@@ -88,7 +88,7 @@
             <tr><td>SCRIPT_FILENAME</td><td><?php echo $_SERVER['SCRIPT_FILENAME'];?></td></tr>
             <tr><td>SCRIPT_NAME    </td><td><?php echo $_SERVER['SCRIPT_NAME'];    ?></td></tr>
             <tr><td>PHP_SELF       </td><td><?php echo $_SERVER['PHP_SELF'];       ?></td></tr>
-            <tr><td>PATH_INFO      </td><td><?php echo $_serverPathInfo;      ?></td></tr>
+            <tr><td>PATH_INFO      </td><td><?php echo $_serverPathInfo;           ?></td></tr>
             <tr><td>REQUEST_URI    </td><td><?php echo $_SERVER['REQUEST_URI'];    ?></td></tr>
           </table>
         </div>

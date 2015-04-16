@@ -25,9 +25,9 @@ $baseHref = $ceradRequest->getBaseHref();
 
 $_serverPathInfo = isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : 'UNDEFINED';
 
-if ($ceradRequest->isPost())
+if ($ceradRequest->isMethodPost())
 {
-  $content = $ceradRequest->getContent();
+  $content = $ceradRequest->getParsedBody();
   
   $user = $content['user'];
   
@@ -48,13 +48,4 @@ $html = ob_get_clean();
 $response = new Response($html);
 $response->send();
 
-/* ====================================================
- * Everything breaks as soon as I go to /web/index.php, can't find css etc
- * Need:  <base href="http://localhost:8080/web/">
- * Works: <base href="/web/">
- * 
- * SymfonyRequest::getBasePath . '/' represents the base href
- * It is not directly available from the $_SERVER
- * 
- */
 ?>
