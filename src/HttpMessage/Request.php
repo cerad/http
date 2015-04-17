@@ -90,19 +90,31 @@ class Request extends Psr7ServerRequest
 
     // baseHref is before any php script
     $scriptName = $serverParams['SCRIPT_NAME'];
-    $pos = strrpos($scriptName,'/');
-    $this->baseHref = substr($scriptName,0,$pos+1);
+    $posLastForwardSlash = strrpos($scriptName,'/');
+    $this->baseHref = substr($scriptName,0,$posLastForwardSlash+1);
+    
+    // scriptName does not always have the php file in it
+    $scriptNameContainsPhpFile = strpos($scriptName,'.php') === false ? false : true;
+    $scriptNameLen = strlen($scriptName);
     
     // routePath is after any script name
-    $scriptNameLen = strlen($scriptName);
     $requestPath = $this->getUri()->getPath();
+    $routePath   = $requestPath;
     
-    if (substr($requestPath,0,$scriptNameLen) == $scriptName) 
+    if ($scriptNameContainsPhpFile)
     {
-      $routePath = substr($requestPath,$scriptNameLen);
+      if (substr($requestPath,0,$scriptNameLen) == $scriptName)
+      {
+        $routePath = substr($requestPath,$scriptNameLen);
+      }
     }
-    else $routePath = $requestPath;
-    
+    else
+    {
+      if ($scriptName !== $requestPath)
+      {
+        $routePath = substr($requestPath,$scriptNameLen);
+      }
+    }    
     $this->routePath = $routePath ? $routePath : '/';
     
     // Content stuff

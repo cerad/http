@@ -119,4 +119,27 @@ class RequestDataTest extends \PHPUnit_Framework_TestCase
     $this->assertEquals('/',    $request->getBaseHref());
     $this->assertEquals('/xxx', $request->getRoutePath());
   }
+  /* =========================================
+   * http://localhost:8001/api.php/referees
+   * Script Name  /api.php
+   * Request Path /api.php/referees
+   * 
+   * http://localhost:8001/referees
+   * Script Name  /referees
+   * Request Path /referees
+   * 
+   * TODO: Test with /web/referees
+   */
+  public function testScriptNameMatchesRequestPath()
+  {
+    $server = 
+    [
+    // http://localhost:8001/referees
+      'SCRIPT_NAME' => '/referees',
+      'REQUEST_URI' => '/referees',
+    ];
+    $request = new Request($server);
+    $this->assertEquals('/',         $request->getBaseHref());
+    $this->assertEquals('/referees', $request->getRoutePath());
+  }
 }
