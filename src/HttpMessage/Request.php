@@ -78,12 +78,14 @@ class Request extends Psr7ServerRequest
       if (substr($key,0,5) == 'HTTP_')
       {
         $name = $this->transformHeaderKey(substr($key,5));
-        $headers[$name] = isset($headers[$name]) ? $headers[$name] : $value;
+        $headers[$name] = $value;
+      //$headers[$name] = isset($headers[$name]) ? $headers[$name] : $value;
       }
       if (isset($contentHeaders[$key])) 
       {
         $name = $this->transformHeaderKey($key,5);
-        $headers[$name] = isset($headers[$name]) ? $headers[$name] : $value;
+        $headers[$name] = $value;
+      //$headers[$name] = isset($headers[$name]) ? $headers[$name] : $value;
       }
     }
     $this->setHeaders($headers);
