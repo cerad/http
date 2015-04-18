@@ -59,10 +59,11 @@ class Request extends Psr7ServerRequest
     $uriParts['path']  = $requestUriParts[0];
     $uriParts['query'] = isset($requestUriParts[1]) ? $requestUriParts[1] : null;
     
-    $uriParts['host'] = $serverParams['HTTP_HOST'];
+    // Port is tacked on
+    $uriParts['host'] = explode(':',$serverParams['HTTP_HOST'])[0];
+    $uriParts['port'] = (int)$serverParams['SERVER_PORT'];
     
-    $uriParts['scheme'] = $serverParams['HTTPS'] !== 'off' ? 'http' : 'https';
-    $uriParts['port']   = (int)$serverParams['SERVER_PORT'];
+    $uriParts['scheme'] = $serverParams['HTTPS'] === 'off' ? 'http' : 'https';
     
     // Leave user/pass until we need them
     
