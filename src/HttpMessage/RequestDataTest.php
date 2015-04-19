@@ -22,6 +22,7 @@ class RequestDataTest extends \PHPUnit_Framework_TestCase
   {
     $server =
     [
+      'SCRIPT_NAME' => '/xxx',
       'REQUEST_URI' => '/xxx?project=ng2016&title=NG+2016',
     ];
     $request = new Request($server);
@@ -52,12 +53,15 @@ class RequestDataTest extends \PHPUnit_Framework_TestCase
     $server = 
     [
    // http://localhost:8080/
+      'HTTP_HOST'   => 'localhost:8080',
       'SCRIPT_NAME' => '/',
       'REQUEST_URI' => '/',
     ];
     $request = new Request($server);
     $this->assertEquals('/',$request->getBaseHref());
     $this->assertEquals('/',$request->getRoutePath());
+    
+    $this->assertEquals('http://localhost:8080/',$request->getBaseHrefAbs());
   }
   public function test2()
   {

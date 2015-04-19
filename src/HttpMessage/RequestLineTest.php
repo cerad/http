@@ -29,6 +29,8 @@ class RequestLineTest extends \PHPUnit_Framework_TestCase
     
     $queryParams = $request->getQueryParams();
     $this->assertEquals('NG 2016',$queryParams['title']);
+    
+    $this->assertEquals('https://user:pass@api.zayso.org:8080/',$request->getBaseHrefAbs());
   }
   public function testRequestHeader()
   {

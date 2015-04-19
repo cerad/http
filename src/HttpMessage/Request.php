@@ -6,8 +6,9 @@ use Cerad\Component\HttpMessagePsr7\ServerRequest as Psr7ServerRequest;
 
 class Request extends Psr7ServerRequest
 {
-  protected $baseHref  = '/';
-  protected $routePath = '/';
+  protected $baseHref    = '/';
+  protected $baseHrefAbs = null;
+  protected $routePath   = '/';
   
   protected $isJson = false;
   protected $isForm = false;
@@ -40,7 +41,7 @@ class Request extends Psr7ServerRequest
       'REQUEST_TIME'    => time(), // Not Used CURRENTLY
       'REQUEST_METHOD'  => 'GET',  // USED
       
-      'SCRIPT_NAME'     => '', // USED for baseHref and routePath
+      'SCRIPT_NAME'     => '/', // USED for baseHref and routePath
       'HTTPS'           => 'off',
       
       // Headers
@@ -59,9 +60,10 @@ class Request extends Psr7ServerRequest
     $uriParts['path']  = $requestUriParts[0];
     $uriParts['query'] = isset($requestUriParts[1]) ? $requestUriParts[1] : null;
     
-    // Port is tacked on
-    $uriParts['host'] = explode(':',$serverParams['HTTP_HOST'])[0];
-    $uriParts['port'] = (int)$serverParams['SERVER_PORT'];
+    // Port is tacked on localhost:8080
+    $hostParts = explode(':',$serverParams['HTTP_HOST']);
+    $uriParts['host'] = $hostParts[0];
+    $uriParts['port'] = isset($hostParts[1]) ? (int)$hostParts[1] : (int)$serverParams['SERVER_PORT'];
     
     $uriParts['scheme'] = $serverParams['HTTPS'] === 'off' ? 'http' : 'https';
     
@@ -94,7 +96,9 @@ class Request extends Psr7ServerRequest
     // baseHref is before any php script
     $scriptName = $serverParams['SCRIPT_NAME'];
     $posLastForwardSlash = strrpos($scriptName,'/');
-    $this->baseHref = substr($scriptName,0,$posLastForwardSlash+1);
+    
+    $this->baseHref    = substr($scriptName,0,$posLastForwardSlash+1);
+    $this->baseHrefAbs = $uri->getScheme() . '://' . $uri->getAuthority() . $this->baseHref;
     
     // scriptName does not always have the php file in it
     $scriptNameContainsPhpFile = strpos($scriptName,'.php') === false ? false : true;
@@ -164,13 +168,20 @@ class Request extends Psr7ServerRequest
     }
     $this->setHeaders($headers);
       
+    // This should always be the case
     $this->routePath = $uri->getPath();
+    
+    // baseHref is always just / for now
+    $this->baseHrefAbs = $uri->getScheme() . '://' . $uri->getAuthority() . $this->baseHref;
+    
+    // The target is what was passed in
     $this->requestTarget = $url;
       
+    // Parse any query params
     parse_str($uri->getQuery(),$this->queryParams);
     
+    // Create and parse the body
     $this->body = new Body($contents);
-    
     $this->parsedBody = $this->parseBody();
   }
   /* =========================================================
@@ -182,8 +193,9 @@ class Request extends Psr7ServerRequest
   public function isContentForm() { return $this->isForm; }
   public function isContentJson() { return $this->isJson; }
   
-  public function getBaseHref () { return $this->baseHref;  }
-  public function getRoutePath() { return $this->routePath; }
+  public function getBaseHref   () { return $this->baseHref;    }
+  public function getBaseHrefAbs() { return $this->baseHrefAbs; }
+  public function getRoutePath  () { return $this->routePath;   }
   
   /* ==========================================================
    * Muttable attributes stuff
