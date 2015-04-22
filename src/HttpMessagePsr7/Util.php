@@ -2,7 +2,11 @@
 
 namespace Cerad\Component\HttpMessagePsr7;
 
-class Util
+/* ===============================================
+ * v0.2
+ * This is no longer used.  Keep for reference.
+ */
+class Utilx
 {
   /* ===============================================
    * Utitlity for setting a non-public property

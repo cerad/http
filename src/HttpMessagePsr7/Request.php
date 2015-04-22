@@ -1,7 +1,6 @@
 <?php
 namespace Cerad\Component\HttpMessagePsr7;
 
-use Cerad\Component\HttpMessagePsr7\Util    as Psr7Util;
 use Cerad\Component\HttpMessagePsr7\Message as Psr7Message;
 
 //  \InvalidArgumentException as Psr7InvalidArgumentException;
@@ -26,7 +25,13 @@ class Request extends Psr7Message implements Psr7RequestInterface
   }
   public function withMethod($method)
   {
-    return ($this->method === $method) ? $this : Psr7Util::setProp($this,'method',$method);
+    $this->checkMethod($method);  // Don't change case
+    
+    $new = clone $this;
+    
+    $new->method = $method;
+    
+    return $new;
   }
   public function getUri() { return $this->uri; }
   
@@ -36,15 +41,17 @@ class Request extends Psr7Message implements Psr7RequestInterface
    */
   public function withUri(Psr7UriInterface $uri, $preserveHost = false)
   {
-    $self = $this;
+    $new = clone $this;
+    
+    $new->uri = $uri;
     
     $uriHost     = $uri->getHost();
-    $requestHost = $this->getHeaderLine('Host');
+    $requestHost = $new->getHeaderLine('Host');
     if (!$preserveHost && ($uriHost !== $requestHost))
     {
-      $self = $this->withHeader('Host',$uriHost);
+      return $new->withHeader('Host',$uriHost);
     }
-    return Psr7Util::setProp($self,'uri',$uri);  
+    return $new; 
   }
   public function getRequestTarget() 
   { 
@@ -54,8 +61,10 @@ class Request extends Psr7Message implements Psr7RequestInterface
   { 
     $requestTargetChecked = $requestTargetArg !== null ? $requestTargetArg : '';
     
-    if ($this->requestTarget === $requestTargetChecked) return $this;
+    $new = clone $this;
     
-    return Psr7Util::setProp($this,'requestTarget',$requestTargetChecked);    
+    $new->requestTarget = $requestTargetChecked;
+    
+    return $new; 
   }
 }

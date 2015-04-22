@@ -7,8 +7,6 @@ use \InvalidArgumentException as Psr7InvalidArgumentException;
 use Psr\Http\Message\MessageInterface as Psr7MessageInterface;
 use Psr\Http\Message\StreamInterface  as Psr7StreamInterface;
 
-use Cerad\Component\HttpMessagePsr7\Util as Psr7Util;
-
 class Message implements Psr7MessageInterface
 { 
   protected $body;
@@ -21,15 +19,22 @@ class Message implements Psr7MessageInterface
   {
     return $this->protocolVersion;
   }
-  protected function checkProtocolVersion($versionArg)
+  protected function checkProtocolVersion($protocolVersionArg)
   {
-    $versionChecked = substr($versionArg,0,5) !== 'HTTP/' ? $versionArg : substr($versionArg,5);
-    return $versionChecked;
+    $protocolVersionChecked = 
+      substr($protocolVersionArg,0,5) !== 'HTTP/' ? 
+      $protocolVersionArg : 
+      substr($protocolVersionArg,5);
+    
+    return $protocolVersionChecked;
   }
-  public function withProtocolVersion($protocolVersion)
+  public function withProtocolVersion($protocolVersionArg)
   {
-    // TODO: Validate version
-    return Psr7Util::setProp($this,'protocolVersion',$protocolVersion);
+    $new = clone $this;
+    
+    $new->protocolVersion = $this->checkProtocolVersion($protocolVersionArg);
+    
+    return $new;
   }
   public function getHeader($name)
   {
@@ -53,20 +58,17 @@ class Message implements Psr7MessageInterface
   }
   public function getHeaders() { return $this->headers; }
   
-  public function withHeader($name,$value)
+  public function withHeader($nameArg,$valueArg)
   {
-    // TODO: Toss exception on invalid input
+    $nameLower  = strtolower($nameArg);
+    $valueArray = is_array($valueArg) ? $valueArg : [$valueArg];
     
-    $nameLower  = strtolower($name);
-    $valueArray = is_array($value) ? $value : [$value];
+    $new = clone $this;
     
-    $headers    = $this->headers;
-    $headerKeys = $this->headerKeys;
+    $new->headers   [$nameArg]   = $valueArray;
+    $new->headerKeys[$nameLower] = $nameArg;
     
-    $headers   [$name]      = $valueArray;
-    $headerKeys[$nameLower] = $name;
-    
-    return Psr7Util::setProp($this,['headers' => $headers, 'headerKeys' => $headerKeys]);        
+    return $new;        
   }
   public function withAddedHeader($nameArg, $valueArg)
   {
@@ -86,13 +88,12 @@ class Message implements Psr7MessageInterface
     
     $nameLower = strtolower($nameArg);
     
-    $headers    = $this->headers;
-    $headerKeys = $this->headerKeys;
+    $new = clone $this;
     
-    unset($headers[$headerKeys[$nameLower]]);
-    unset(         $headerKeys[$nameLower]);
+    unset($new->headers[$new->headerKeys[$nameLower]]);
+    unset($new->headerKeys[$nameLower]);
     
-    return Psr7Util::setProp($this,['headers' => $headers, 'headerKeys' => $headerKeys]);    
+    return $new; 
   }
   public function getBody()
   {
@@ -100,7 +101,11 @@ class Message implements Psr7MessageInterface
   }
   public function withBody(Psr7StreamInterface $body)
   {
-    return Psr7Util::setProp($this,'body',$body);    
+    $new = clone $this;
+    
+    $new->body = $body;
+    
+    return $new; 
   }
   /* ===================================================
    * Helper function for multiple headers

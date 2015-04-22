@@ -1,7 +1,6 @@
 <?php
 namespace Cerad\Component\HttpMessagePsr7;
 
-use Cerad\Component\HttpMessagePsr7\Util     as Psr7Util;
 use Cerad\Component\HttpMessagePsr7\Message  as Psr7Message;
 
 //  \InvalidArgumentException as Psr7InvalidArgumentException;
@@ -30,6 +29,11 @@ class Response extends Psr7Message implements Psr7ResponseInterface
   {
     $statusText = $reasonPhrase ? $reasonPhrase : self::$statusTexts[$statusCode];
     
-    return Psr7Util::setProp($this,['statusCode' => $statusCode, 'statusText' => $statusText]);
+    $new = clone $this;
+    
+    $new->statusCode = $statusCode;
+    $new->statusText = $statusText;
+    
+    return $new;
   }
 }
