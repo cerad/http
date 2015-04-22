@@ -8,11 +8,9 @@
          bootstrap="vendor/autoload.php"
 >
   <testsuites>
-    <testsuite name="HttpMessage Cerad Test Suite">
-      <directory>src/HttpMessage</directory>
-    </testsuite>
-    <testsuite name="HttpMessage Psr7 Test Suite">
+    <testsuite name="HttpMessage Test Suite">
       <directory>src/HttpMessagePsr7</directory>
+      <directory>src/HttpMessage</directory>
     </testsuite>
   </testsuites>
 </phpunit>
