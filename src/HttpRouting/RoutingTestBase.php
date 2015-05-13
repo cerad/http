@@ -2,8 +2,6 @@
 
 namespace Cerad\Component\HttpRouting;
 
-require __DIR__  . '/../../vendor/autoload.php';
-
 class RoutingTestBase extends \PHPUnit_Framework_TestCase
 {
   static $routeRefereesAll;

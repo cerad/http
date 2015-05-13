@@ -2,8 +2,6 @@
 
 namespace Cerad\Component\HttpRouting;
 
-require __DIR__  . '/../../vendor/autoload.php';
-
 class RouteTest extends RoutingTestBase
 {
   public function testRefereesAll()

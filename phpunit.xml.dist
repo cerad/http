@@ -9,8 +9,10 @@
 >
   <testsuites>
     <testsuite name="HttpMessage Test Suite">
-      <directory>src/HttpMessagePsr7</directory>
-      <directory>src/HttpMessage</directory>
+        <directory>src/HttpMessagePsr7</directory>
+        <directory>src/HttpMessage</directory>
+        <directory>src/HttpKernel</directory>
+        <directory>src/HttpKernel/EventListener</directory>
     </testsuite>
   </testsuites>
 </phpunit>

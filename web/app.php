@@ -48,4 +48,3 @@ $html = ob_get_clean();
 $response = new Response($html);
 $response->send();
 
-?>
