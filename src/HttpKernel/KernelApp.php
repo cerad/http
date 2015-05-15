@@ -44,7 +44,7 @@ class KernelApp
 
     $this->booted = true;
   }
-  protected function registerServices($container)
+  protected function registerServices(Container $container)
   {
     new KernelServices($container);
   }
